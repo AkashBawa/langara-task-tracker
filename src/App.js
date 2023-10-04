@@ -14,21 +14,31 @@ function App() {
   
   const [showAddTask, setShowAddTask] = useState(true);
   const [tasks, setTasks] = useState ([]);
-
+  const [taskCompleted, setCompletedTasks] = useState(); 
 
   useEffect(() => {
-    const getTasks = async () => {
-      const taskFromServer =  await fetchTasks();
-      setTasks(taskFromServer);
-    }
+    
     getTasks();
-  }, [])
+    fetchCompletedTasks();
+
+  }, []);
+
+  const getTasks = async () => {
+    const taskFromServer =  await fetchTasks();
+    setTasks(taskFromServer);
+  }
 
   const fetchTasks = async () => {
     const res = await fetch("http://localhost:5000/tasks?status=active");
     const data = await res.json();
     return data;
   }
+
+  const fetchCompletedTasks = async () => {
+    const res = await fetch("http://localhost:5000/tasks?status=completed");
+    const data = await res.json();
+    setCompletedTasks(data);
+}
 
   // Fetch single task
   const fetchTask = async (id) => {
@@ -59,7 +69,26 @@ function App() {
     const data = await res.json();
     const newTasks = await fetchTasks();
     setTasks(newTasks);
+    await fetchCompletedTasks();
   }
+
+  const reactivateTask = async (id) => {
+    const completedTask = await fetchTask(id);
+    const activeTask = {...completedTask, status: "active"};
+
+    const res = await fetch(`http://localhost:5000/tasks/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-type": "application/json"
+      },
+      body: JSON.stringify(activeTask)
+    })
+    
+    const data = await res.json();
+    await fetchCompletedTasks();
+    await getTasks();
+  }
+
     
 
   const toggleReminder = async (id) => {
@@ -120,8 +149,8 @@ function App() {
               </>
           }/>
           <Route path="/about" element={<About/>}></Route>
-          <Route path="/completedTasks" element={<CompletedTasks/>}></Route>
-          <Route path="/task/:id" element={<TaskDetails/>}></Route>
+          <Route path="/completedTasks" element={<CompletedTasks tasks={taskCompleted}  reactivateTask={reactivateTask} deleteTask={deleteTask}/>}></Route>
+          <Route path="/task/:id" element={<TaskDetails/> }></Route>
         </Routes>
         <Footer/>
       </Router>
