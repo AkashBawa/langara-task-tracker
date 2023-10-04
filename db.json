@@ -13,13 +13,6 @@
       "day": "Feb 6th at 1:30pm",
       "reminder": true,
       "status": "active"
-    },
-    {
-      "text": "new task",
-      "day": "testing",
-      "reminder": true,
-      "status": "active",
-      "id": 3
     }
   ]
 }

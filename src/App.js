@@ -52,6 +52,8 @@ function App() {
       method: "DELETE"
   })
     setTasks(tasks.filter((task) => task.id !== id));
+    await fetchCompletedTasks();
+    await fetchTasks();
   }
 
   const completeTask = async (id) => {
